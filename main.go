@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -10,6 +12,8 @@ import (
 )
 
 func main() {
+	dryFlag := flag.Bool("dry", true, "This flag tells the program to execute the renaming of the files, if not provided it will do a dry run to showcase the expected output behaviour.")
+	flag.Parse()
 	walkDir := "./sample"
 	toRename := make(map[string][]string)
 	filepath.Walk(walkDir, func(path string, info os.FileInfo, err error) error {
@@ -38,10 +42,12 @@ func main() {
 			oldPath := filepath.Join(dir, filename)
 			newPath := filepath.Join(dir, newFilename)
 			fmt.Printf("mv %s => %s\n", oldPath, newPath)
-			// err := os.Rename(oldPath, newPath)
-			// if err != nil {
-			// 	log.Println("Error renaming:", oldPath, newPath, err)
-			// }
+			if !*dryFlag {
+				err := os.Rename(oldPath, newPath)
+				if err != nil {
+					log.Println("Error renaming:", oldPath, newPath, err)
+				}
+			}
 		}
 	}
 }
